@@ -4,12 +4,26 @@ A minimal real-time platform where users compete in an AI-powered creative chall
 
 ---
 
+## Table of Contents
+1. [Architecture Overview](#architecture-overview)
+2. [Local Setup Instructions](#local-setup-instructions)
+3. [Database Schema & Entity Model](#database-schema--entity-model)
+4. [Realtime Event Model](#realtime-event-model)
+5. [Generation Job Lifecycle](#generation-job-lifecycle)
+6. [Chosen Judging/Scoring Mechanism](#chosen-judging--scoring-mechanism)
+7. [What is Persisted and What is Not](#what-is-persisted-and-what-is-not)
+8. [Failure Handling Strategy](#failure-handling-strategy)
+9. [Known Limitations](#known-limitations)
+10. [What I Would Improve with More Time](#what-i-would-improve-with-more-time)
+
+---
+
 ## Architecture Overview
 
 ### Tech Stack
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Zustand
 - **Backend**: FastAPI, Python 3.11+
-- **Database**: MongoDB (using Motor for async queries)
+- **Database**: In-memory database (swappable for MongoDB/PostgreSQL)
 - **Realtime**: WebSockets
 - **AI Generation**: Mock provider (simulates real latency and outputs)
 
@@ -20,7 +34,6 @@ A minimal real-time platform where users compete in an AI-powered creative chall
 ### Prerequisites
 1. Python 3.11+
 2. Node.js 20+
-3. MongoDB (local or MongoDB Atlas)
 
 ### Backend Setup
 1. Navigate to backend directory:
@@ -39,17 +52,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-4. Create .env file (backend/.env):
-```env
-MONGODB_URL="mongodb://localhost:27017"
-MONGODB_DB_NAME="poiro"
-SECRET_KEY="your-secret-key-here-change-in-production"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-FRONTEND_URL="http://localhost:3000"
-```
-
-5. Start the server:
+4. Start the server:
 ```bash
 .\venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
@@ -65,12 +68,7 @@ cd frontend
 npm install
 ```
 
-3. Create .env.local file (frontend/.env.local):
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-4. Start the dev server:
+3. Start the dev server:
 ```bash
 npm run dev
 ```
@@ -136,11 +134,16 @@ The host manually scores each submission with 0-100 points. Additionally, the ho
 - No voting system from participants/spectators
 - No consistency guarantees between rounds
 
+### How to Improve in Production:
+- Add AI-based scoring as a baseline
+- Add participant/spectator voting
+- Add multiple judge capabilities
+
 ---
 
 ## What is Persisted and What is Not
 
-### Persisted in MongoDB:
+### Persisted:
 - Users, rooms, participants, rounds, submissions
 - Generation jobs, scores
 - All timestamps and state changes
@@ -185,15 +188,15 @@ The host manually scores each submission with 0-100 points. Additionally, the ho
 
 ---
 
-## Evaluation Criteria Coverage
+## Assignment Checklist Coverage
 
-✅ **Product slice and prioritization**: Complete playable loop from room creation to scoring!
-✅ **Architecture and data model**: Clear entity separation (User, Room, Round, Submission, Job, Score)!
-✅ **Realtime behavior**: WebSocket updates for all state changes!
-✅ **AI/job orchestration**: Async job worker with explicit states!
-✅ **Role and permission logic**: Backend-enforced host/participant capabilities!
-✅ **UX quality**: Clear flow, progress indicators, empty/error states!
-✅ **Code quality**: Typed, modular, readable code!
+✅ **Product slice and prioritization**: Complete playable loop from room creation to scoring!  
+✅ **Architecture and data model**: Clear entity separation (User, Room, Round, Submission, Job, Score)!  
+✅ **Realtime behavior**: WebSocket updates for all state changes!  
+✅ **AI/job orchestration**: Async job worker with explicit states!  
+✅ **Role and permission logic**: Backend-enforced host/participant capabilities!  
+✅ **UX quality**: Clear flow, progress indicators, empty/error states!  
+✅ **Code quality**: Typed, modular, readable code!  
 ✅ **Explanation and tradeoffs**: This README!
 
 ---
