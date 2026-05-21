@@ -5,27 +5,66 @@ A minimal real-time platform where users compete in an AI-powered creative chall
 ---
 
 ## Table of Contents
-1. [Architecture Overview](#architecture-overview)
-2. [Local Setup Instructions](#local-setup-instructions)
-3. [Database Schema & Entity Model](#database-schema--entity-model)
-4. [Realtime Event Model](#realtime-event-model)
-5. [Generation Job Lifecycle](#generation-job-lifecycle)
-6. [Chosen Judging/Scoring Mechanism](#chosen-judging--scoring-mechanism)
-7. [What is Persisted and What is Not](#what-is-persisted-and-what-is-not)
-8. [Failure Handling Strategy](#failure-handling-strategy)
-9. [Known Limitations](#known-limitations)
-10. [What I Would Improve with More Time](#what-i-would-improve-with-more-time)
+1. [Why I Chose This Tech Stack](#why-i-chose-this-tech-stack)
+2. [Tradeoffs](#tradeoffs)
+3. [What I Intentionally Skipped](#what-i-intentionally-skipped)
+4. [Local Setup Instructions](#local-setup-instructions)
+5. [Architecture Overview](#architecture-overview)
+6. [Database Schema & Entity Model](#database-schema--entity-model)
+7. [Realtime Event Model](#realtime-event-model)
+8. [Generation Job Lifecycle](#generation-job-lifecycle)
+9. [Chosen Judging/Scoring Mechanism](#chosen-judging--scoring-mechanism)
+10. [Persistence Details](#persistence-details)
+11. [Failure Handling](#failure-handling)
+12. [Known Limitations](#known-limitations)
+13. [Improvements with More Time](#improvements-with-more-time)
 
 ---
 
-## Architecture Overview
+## Why I Chose This Tech Stack
 
-### Tech Stack
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Zustand
-- **Backend**: FastAPI, Python 3.11+
-- **Database**: In-memory database (swappable for MongoDB/PostgreSQL)
-- **Realtime**: WebSockets
-- **AI Generation**: Mock provider (simulates real latency and outputs)
+### Frontend
+- **Next.js 14**: Fast, SEO-friendly, great DX with App Router
+- **TypeScript**: Type safety reduces bugs and improves maintainability
+- **Tailwind CSS**: Rapid UI development without writing custom CSS
+- **Zustand**: Lightweight state management, perfect for simple room state
+
+### Backend
+- **FastAPI**: Async-first, automatic OpenAPI docs, strong type hints
+- **Python**: Great for AI/ML integrations, easy to work with async operations
+- **WebSockets**: Simple real-time communication without dependencies like Socket.IO
+
+### Database
+- **In-memory DB (swappable)**: Minimal setup for the assignment; easy to replace with MongoDB/PostgreSQL later
+- **Async-compatible**: Fits perfectly with FastAPI's async request handling
+
+---
+
+## Tradeoffs
+
+| Decision | Pro | Con |
+|----------|-----|-----|
+| In-memory DB instead of MongoDB/PostgreSQL | No external dependencies needed; easy to run locally | Data doesn't survive server restart |
+| Mock AI provider instead of real LLM | No API keys or costs; consistent behavior | No real AI outputs |
+| WebSockets instead of Socket.IO | Lightweight; no extra libraries | No automatic reconnection or fallback to polling |
+| Manual scoring instead of automated | Simple to implement; host has full control | No consistency; requires active host |
+
+---
+
+## What I Intentionally Skipped
+
+These features were skipped to keep the scope focused and deliver a complete playable loop first:
+
+1. **Production OAuth**: Used simple email/password instead of Google/GitHub OAuth
+2. **Image/Video Generation**: Only text outputs for simplicity
+3. **Spectator Mode**: Only host/participant roles
+4. **Retry Logic for Failed Jobs**: No automatic retries
+5. **Multiple Tournament Formats**: Only simple rounds
+6. **Moderation/Safety**: No content filtering
+7. **Hosted Deployment**: Kept it local-only for the assignment
+8. **Comprehensive Tests**: No unit/integration tests yet
+9. **Mobile Responsiveness**: Focused on desktop first
+10. **Event Sourcing**: No append-only activity log
 
 ---
 
@@ -74,6 +113,17 @@ npm run dev
 ```
 
 Now visit http://localhost:3000!
+
+---
+
+## Architecture Overview
+
+### Tech Stack
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Zustand
+- **Backend**: FastAPI, Python 3.11+
+- **Database**: In-memory database (swappable for MongoDB/PostgreSQL)
+- **Realtime**: WebSockets
+- **AI Generation**: Mock provider (simulates real latency and outputs)
 
 ---
 
@@ -141,7 +191,7 @@ The host manually scores each submission with 0-100 points. Additionally, the ho
 
 ---
 
-## What is Persisted and What is Not
+## Persistence Details
 
 ### Persisted:
 - Users, rooms, participants, rounds, submissions
@@ -154,7 +204,7 @@ The host manually scores each submission with 0-100 points. Additionally, the ho
 
 ---
 
-## Failure Handling Strategy
+## Failure Handling
 
 1. **Failed Generation Jobs**: Show error message to user, job is marked as "failed"
 2. **Disconnected WebSockets**: Client auto-reconnects with backoff
@@ -175,7 +225,7 @@ The host manually scores each submission with 0-100 points. Additionally, the ho
 
 ---
 
-## What I Would Improve with More Time
+## Improvements with More Time
 
 1. **Add real AI integration**: Replace mock provider with OpenAI, Anthropic, or other LLM APIs
 2. **Add image generation**: Use DALL-E or Midjourney APIs
